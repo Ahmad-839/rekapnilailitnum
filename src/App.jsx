@@ -1,148 +1,38 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import {
-  getFirestore,
-  collection,
-  doc,
-  onSnapshot,
-  updateDoc,
-  writeBatch,
-} from 'firebase/firestore';
+import { getFirestore, collection, doc, onSnapshot, updateDoc, writeBatch } from 'firebase/firestore';
 
 // --- KOMPONEN IKON SVG (Anti-Hilang, tanpa perlu install library luar) ---
-const IconLock = ({ size = 20, color = 'currentColor' }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-);
-const IconUnlock = ({ size = 20, color = 'currentColor' }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-    <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
-  </svg>
-);
-const IconEdit = ({ size = 20, color = 'currentColor' }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-  </svg>
-);
-const IconSave = ({ size = 20, color = 'currentColor' }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-    <polyline points="7 3 7 8 15 8"></polyline>
-  </svg>
-);
-const IconX = ({ size = 20, color = 'currentColor' }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-);
-const IconPrinter = ({ size = 20, color = 'currentColor' }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="6 9 6 2 18 2 18 9"></polyline>
-    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-    <rect x="6" y="14" width="12" height="8"></rect>
-  </svg>
-);
-const IconRotateCcw = ({ size = 20, color = 'currentColor' }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="1 4 1 10 7 10"></polyline>
-    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-  </svg>
-);
+const IconLock = ({ size = 20, color = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>;
+const IconUnlock = ({ size = 20, color = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>;
+const IconEdit = ({ size = 20, color = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
+const IconSave = ({ size = 20, color = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>;
+const IconX = ({ size = 20, color = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+const IconPrinter = ({ size = 20, color = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>;
+const IconRotateCcw = ({ size = 20, color = 'currentColor' }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>;
 
 // --- KONFIGURASI FIREBASE ---
 const firebaseConfig = {
-  apiKey: 'AIzaSyDxgpwdO6f1AowEvolkSixXsLfQE_JEXqs',
-  authDomain: 'litnum-fest-live.firebaseapp.com',
-  projectId: 'litnum-fest-live',
-  storageBucket: 'litnum-fest-live.firebasestorage.app',
-  messagingSenderId: '977888302502',
-  appId: '1:977888302502:web:2efec251cf5860d428ab67',
-  measurementId: 'G-F6554PPTWY',
+  apiKey: "AIzaSyDxgpwdO6f1AowEvolkSixXsLfQE_JEXqs",
+  authDomain: "litnum-fest-live.firebaseapp.com",
+  projectId: "litnum-fest-live",
+  storageBucket: "litnum-fest-live.firebasestorage.app",
+  messagingSenderId: "977888302502",
+  appId: "1:977888302502:web:2efec251cf5860d428ab67",
+  measurementId: "G-F6554PPTWY"
 };
 
-const app =
-  getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 const MAX_SCORES = { sq: 250, mm: 250, dc: 300 };
-const ADMIN_PIN = '123456';
+const ADMIN_PIN = "123456";
 
 // Inline SVG Vector Logos
-const LOGO_KIRI =
-  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><rect width='100%' height='100%' rx='20' fill='%230756B8'/><text x='50%' y='50%' fill='%23FFFFFF' font-weight='900' font-family='sans-serif' font-size='22' text-anchor='middle' dominant-baseline='middle'>SMK 45</text></svg>";
-const LOGO_KANAN =
-  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><rect width='100%' height='100%' rx='20' fill='%23FFC928'/><text x='50%' y='50%' fill='%23071A35' font-weight='900' font-family='sans-serif' font-size='22' text-anchor='middle' dominant-baseline='middle'>LITNUM</text></svg>";
+const LOGO_KIRI = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><rect width='100%' height='100%' rx='20' fill='%230756B8'/><text x='50%' y='50%' fill='%23FFFFFF' font-weight='900' font-family='sans-serif' font-size='22' text-anchor='middle' dominant-baseline='middle'>SMK 45</text></svg>";
+const LOGO_KANAN = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><rect width='100%' height='100%' rx='20' fill='%23FFC928'/><text x='50%' y='50%' fill='%23071A35' font-weight='900' font-family='sans-serif' font-size='22' text-anchor='middle' dominant-baseline='middle'>LITNUM</text></svg>";
 
 const initialGroupsData = Array.from({ length: 14 }, (_, i) => ({
   id: `group-${(i + 1).toString().padStart(2, '0')}`,
@@ -160,17 +50,17 @@ export default function LitnumFestApp() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [pinInput, setPinInput] = useState('');
+  const [pinInput, setPinInput] = useState("");
   const [showPinModal, setShowPinModal] = useState(false);
   const [editingGroupId, setEditingGroupId] = useState(null);
   const [editForm, setEditForm] = useState(null);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Firebase Auth (Anonymous)
   useEffect(() => {
     if (!auth) return;
-    signInAnonymously(auth).catch((err) => console.error('Auth error:', err));
+    signInAnonymously(auth).catch(err => console.error("Auth error:", err));
     const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsubscribe();
   }, []);
@@ -181,7 +71,6 @@ export default function LitnumFestApp() {
     return () => clearInterval(timer);
   }, []);
 
-  // Fail-safe Loading Timeout
   // Firestore Real-time Listener & Data Sync
   useEffect(() => {
     // 1. Coba muat dari LocalStorage terlebih dahulu sebagai cadangan awal
@@ -190,7 +79,7 @@ export default function LitnumFestApp() {
       try {
         setGroups(JSON.parse(localData));
       } catch (e) {
-        console.error('Gagal membaca local storage:', e);
+        console.error("Gagal membaca local storage:", e);
       }
     }
 
@@ -199,38 +88,31 @@ export default function LitnumFestApp() {
       return;
     }
 
-    // 2. Hubungkan ke Firestore Koleksi Terpusat 'litnum_groups' (Bisa diakses bersama oleh semua akun)
+    // 2. Hubungkan ke Firestore Koleksi Terpusat 'litnum_groups'
     const groupsRef = collection(db, 'litnum_groups');
-    const unsubscribe = onSnapshot(
-      groupsRef,
-      async (snapshot) => {
-        if (snapshot.empty) {
-          // Jika database Firebase masih kosong, inisialisasi data awal 14 kelompok secara massal
-          try {
-            const batch = writeBatch(db);
-            initialGroupsData.forEach((g) => {
-              batch.set(doc(groupsRef, g.id), g);
-            });
-            await batch.commit();
-          } catch (e) {
-            console.error('Gagal menginisialisasi Firestore:', e);
-          }
-        } else {
-          const fetchedGroups = snapshot.docs.map((doc) => doc.data());
-          setGroups(fetchedGroups);
-          // Simpan juga ke localStorage sebagai cadangan offline
-          localStorage.setItem(
-            'litnum_groups_data',
-            JSON.stringify(fetchedGroups)
-          );
+    const unsubscribe = onSnapshot(groupsRef, async (snapshot) => {
+      if (snapshot.empty) {
+        // Jika database Firebase masih kosong, inisialisasi data awal 14 kelompok secara massal
+        try {
+          const batch = writeBatch(db);
+          initialGroupsData.forEach((g) => {
+            batch.set(doc(groupsRef, g.id), g);
+          });
+          await batch.commit();
+        } catch (e) {
+          console.error("Gagal menginisialisasi Firestore:", e);
         }
-        setLoading(false);
-      },
-      (error) => {
-        console.warn('Firestore Listener Error / Mode Offline:', error);
-        setLoading(false);
+      } else {
+        const fetchedGroups = snapshot.docs.map(doc => doc.data());
+        setGroups(fetchedGroups);
+        // Simpan juga ke localStorage sebagai cadangan offline
+        localStorage.setItem('litnum_groups_data', JSON.stringify(fetchedGroups));
       }
-    );
+      setLoading(false);
+    }, (error) => {
+      console.warn("Firestore Listener Error / Mode Offline:", error);
+      setLoading(false);
+    });
 
     return () => unsubscribe();
   }, [user]);
@@ -243,13 +125,7 @@ export default function LitnumFestApp() {
     return sq + mm + dc + jp;
   };
 
-  const isComplete = (g) =>
-    g.sq !== null &&
-    g.sq !== undefined &&
-    g.mm !== null &&
-    g.mm !== undefined &&
-    g.dc !== null &&
-    g.dc !== undefined;
+  const isComplete = (g) => g.sq !== null && g.sq !== undefined && g.mm !== null && g.mm !== undefined && g.dc !== null && g.dc !== undefined;
 
   const sortedGroups = useMemo(() => {
     return [...groups].sort((a, b) => {
@@ -269,64 +145,42 @@ export default function LitnumFestApp() {
     if (pinInput === ADMIN_PIN) {
       setIsAdmin(true);
       setShowPinModal(false);
-      setPinInput('');
+      setPinInput("");
       setIsDrawerOpen(true);
     } else {
-      setErrorMsg('PIN Salah!');
-      setTimeout(() => setErrorMsg(''), 3000);
+      setErrorMsg("PIN Salah!");
+      setTimeout(() => setErrorMsg(""), 3000);
     }
   };
 
   const handleSaveEdit = async () => {
     if (!editForm) return;
 
-    if (
-      editForm.sq !== null &&
-      editForm.sq !== '' &&
-      (editForm.sq < 0 || editForm.sq > MAX_SCORES.sq)
-    ) {
-      alert(`Nilai Smart Quiz harus 0 - ${MAX_SCORES.sq}`);
-      return;
+    if (editForm.sq !== null && editForm.sq !== "" && (editForm.sq < 0 || editForm.sq > MAX_SCORES.sq)) {
+      alert(`Nilai Smart Quiz harus 0 - ${MAX_SCORES.sq}`); return;
     }
-    if (
-      editForm.mm !== null &&
-      editForm.mm !== '' &&
-      (editForm.mm < 0 || editForm.mm > MAX_SCORES.mm)
-    ) {
-      alert(`Nilai Mystery Mission harus 0 - ${MAX_SCORES.mm}`);
-      return;
+    if (editForm.mm !== null && editForm.mm !== "" && (editForm.mm < 0 || editForm.mm > MAX_SCORES.mm)) {
+      alert(`Nilai Mystery Mission harus 0 - ${MAX_SCORES.mm}`); return;
     }
-    if (
-      editForm.dc !== null &&
-      editForm.dc !== '' &&
-      (editForm.dc < 0 || editForm.dc > MAX_SCORES.dc)
-    ) {
-      alert(`Nilai Data Challenge harus 0 - ${MAX_SCORES.dc}`);
-      return;
+    if (editForm.dc !== null && editForm.dc !== "" && (editForm.dc < 0 || editForm.dc > MAX_SCORES.dc)) {
+      alert(`Nilai Data Challenge harus 0 - ${MAX_SCORES.dc}`); return;
     }
 
     const cleanData = {
       id: editForm.id,
       name: editForm.name || `Kelompok ${editForm.id.split('-')[1]}`,
-      sq:
-        editForm.sq === '' || editForm.sq === null ? null : Number(editForm.sq),
-      mm:
-        editForm.mm === '' || editForm.mm === null ? null : Number(editForm.mm),
-      dc:
-        editForm.dc === '' || editForm.dc === null ? null : Number(editForm.dc),
-      jp:
-        editForm.jp === '' || editForm.jp === null ? null : Number(editForm.jp),
-      tb:
-        editForm.tb === '' || editForm.tb === null ? null : Number(editForm.tb),
+      sq: editForm.sq === "" || editForm.sq === null ? null : Number(editForm.sq),
+      mm: editForm.mm === "" || editForm.mm === null ? null : Number(editForm.mm),
+      dc: editForm.dc === "" || editForm.dc === null ? null : Number(editForm.dc),
+      jp: editForm.jp === "" || editForm.jp === null ? null : Number(editForm.jp),
+      tb: editForm.tb === "" || editForm.tb === null ? null : Number(editForm.tb),
     };
 
     // Update state lokal
-    const updatedGroups = groups.map((g) =>
-      g.id === cleanData.id ? cleanData : g
-    );
+    const updatedGroups = groups.map(g => g.id === cleanData.id ? cleanData : g);
     setGroups(updatedGroups);
     localStorage.setItem('litnum_groups_data', JSON.stringify(updatedGroups));
-
+    
     setEditingGroupId(null);
     setEditForm(null);
 
@@ -335,39 +189,26 @@ export default function LitnumFestApp() {
       try {
         await updateDoc(doc(db, 'litnum_groups', editForm.id), cleanData);
       } catch (err) {
-        console.warn('Firestore update error:', err);
+        console.warn("Firestore update error:", err);
       }
     }
   };
 
   const handleResetAll = async () => {
-    if (window.confirm('AWAS! Yakin ingin mereset SEMUA nilai ke awal?')) {
-      const resetData = groups.map((g) => ({
-        ...g,
-        sq: null,
-        mm: null,
-        dc: null,
-        jp: null,
-        tb: null,
-      }));
+    if (window.confirm("AWAS! Yakin ingin mereset SEMUA nilai ke awal?")) {
+      const resetData = groups.map(g => ({ ...g, sq: null, mm: null, dc: null, jp: null, tb: null }));
       setGroups(resetData);
       localStorage.setItem('litnum_groups_data', JSON.stringify(resetData));
 
       if (db) {
         try {
           const batch = writeBatch(db);
-          groups.forEach((g) => {
-            batch.update(doc(db, 'litnum_groups', g.id), {
-              sq: null,
-              mm: null,
-              dc: null,
-              jp: null,
-              tb: null,
-            });
+          groups.forEach(g => {
+            batch.update(doc(db, 'litnum_groups', g.id), { sq: null, mm: null, dc: null, jp: null, tb: null });
           });
           await batch.commit();
         } catch (err) {
-          console.warn('Firestore reset error:', err);
+          console.warn("Firestore reset error:", err);
         }
       }
     }
@@ -375,30 +216,8 @@ export default function LitnumFestApp() {
 
   if (loading) {
     return (
-      <div
-        style={{
-          minHeight: '100vh',
-          backgroundColor: '#040d1a',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#FFC928',
-          fontFamily: 'system-ui, sans-serif',
-        }}
-      >
-        <div
-          className="spinner"
-          style={{
-            width: '40px',
-            height: '40px',
-            border: '4px solid rgba(255, 201, 40, 0.3)',
-            borderTop: '4px solid #FFC928',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            marginBottom: '16px',
-          }}
-        ></div>
+      <div style={{ minHeight: '100vh', backgroundColor: '#040d1a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#FFC928', fontFamily: 'system-ui, sans-serif' }}>
+        <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid rgba(255, 201, 40, 0.3)', borderTop: '4px solid #FFC928', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '16px' }}></div>
         <h2 style={{ letterSpacing: '2px' }}>MEMUAT SISTEM...</h2>
         <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       </div>
@@ -516,30 +335,13 @@ export default function LitnumFestApp() {
           </div>
           <div>
             <h1 className="header-title">LITNUM FEST</h1>
-            <p className="header-sub">
-              Lomba Literasi dan Numerasi • Live Scoreboard
-            </p>
+            <p className="header-sub">Lomba Literasi dan Numerasi • Live Scoreboard</p>
           </div>
         </div>
 
-        <div
-          style={{
-            textAlign: 'right',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '6px',
-          }}
-        >
+        <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
           <span className="live-badge">● LIVE</span>
-          <div
-            style={{
-              fontSize: '13px',
-              color: '#bae6fd',
-              fontFamily: 'monospace',
-              fontWeight: 'bold',
-            }}
-          >
+          <div style={{ fontSize: '13px', color: '#bae6fd', fontFamily: 'monospace', fontWeight: 'bold' }}>
             {currentTime.toLocaleTimeString('id-ID')} WIB
           </div>
         </div>
@@ -553,9 +355,7 @@ export default function LitnumFestApp() {
               <thead>
                 <tr>
                   <th style={{ width: '80px' }}>Rank</th>
-                  <th style={{ textAlign: 'left', minWidth: '220px' }}>
-                    Nama Kelompok
-                  </th>
+                  <th style={{ textAlign: 'left', minWidth: '220px' }}>Nama Kelompok</th>
                   <th>Smart Quiz</th>
                   <th>Mystery Mission</th>
                   <th>Data Challenge</th>
@@ -567,11 +367,11 @@ export default function LitnumFestApp() {
                 {sortedGroups.map((group, index) => {
                   const total = calculateTotal(group);
                   const complete = isComplete(group);
-
-                  let rankClass = 'rank-circle';
-                  if (index === 0) rankClass += ' rank-1';
-                  else if (index === 1) rankClass += ' rank-2';
-                  else if (index === 2) rankClass += ' rank-3';
+                  
+                  let rankClass = "rank-circle";
+                  if (index === 0) rankClass += " rank-1";
+                  else if (index === 1) rankClass += " rank-2";
+                  else if (index === 2) rankClass += " rank-3";
 
                   return (
                     <tr key={group.id}>
@@ -581,31 +381,17 @@ export default function LitnumFestApp() {
                       <td>
                         <div className="group-name">
                           {group.name}
-                          {!complete && (
-                            <span className="badge-warning">Proses</span>
-                          )}
-                          {group.tb ? (
-                            <span className="badge-tb">TB: {group.tb}</span>
-                          ) : null}
+                          {!complete && <span className="badge-warning">Proses</span>}
+                          {group.tb ? <span className="badge-tb">TB: {group.tb}</span> : null}
                         </div>
                       </td>
-                      <td className="score-cell">
-                        {group.sq !== null ? group.sq : '-'}
-                      </td>
-                      <td className="score-cell">
-                        {group.mm !== null ? group.mm : '-'}
-                      </td>
-                      <td className="score-cell">
-                        {group.dc !== null ? group.dc : '-'}
-                      </td>
+                      <td className="score-cell">{group.sq !== null ? group.sq : '-'}</td>
+                      <td className="score-cell">{group.mm !== null ? group.mm : '-'}</td>
+                      <td className="score-cell">{group.dc !== null ? group.dc : '-'}</td>
                       <td className="score-cell">
                         {group.jp !== null ? (
-                          <span className="score-jp">
-                            {group.jp > 0 ? `+${group.jp}` : group.jp}
-                          </span>
-                        ) : (
-                          '-'
-                        )}
+                          <span className="score-jp">{group.jp > 0 ? `+${group.jp}` : group.jp}</span>
+                        ) : '-'}
                       </td>
                       <td className="total-cell">{complete ? total : '-'}</td>
                     </tr>
@@ -619,21 +405,13 @@ export default function LitnumFestApp() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <span>
-          &copy; {new Date().getFullYear()} LITNUM FEST - SMK 02 Islam 45 Ambulu
-        </span>
+        <span>&copy; {new Date().getFullYear()} LITNUM FEST - SMK 02 Islam 45 Ambulu</span>
         <button
-          onClick={() =>
-            isAdmin ? setIsDrawerOpen(true) : setShowPinModal(true)
-          }
+          onClick={() => isAdmin ? setIsDrawerOpen(true) : setShowPinModal(true)}
           className="btn-icon"
           title="Panel Panitia (Ctrl+Shift+A)"
         >
-          {isAdmin ? (
-            <IconUnlock size={22} color="#4ade80" />
-          ) : (
-            <IconLock size={22} />
-          )}
+          {isAdmin ? <IconUnlock size={22} color="#4ade80" /> : <IconLock size={22} />}
         </button>
       </footer>
 
@@ -641,28 +419,11 @@ export default function LitnumFestApp() {
       {showPinModal && (
         <div className="modal-overlay">
           <form onSubmit={handleLogin} className="modal-card">
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                marginBottom: '16px',
-                color: '#3b82f6',
-              }}
-            >
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px', color: '#3b82f6' }}>
               <IconLock size={48} />
             </div>
-            <h3
-              style={{
-                fontSize: '24px',
-                fontWeight: '800',
-                marginBottom: '8px',
-              }}
-            >
-              Akses Panitia
-            </h3>
-            <p style={{ fontSize: '13px', color: '#94a3b8' }}>
-              Masukkan PIN rahasia 6 digit untuk mengubah skor.
-            </p>
+            <h3 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '8px' }}>Akses Panitia</h3>
+            <p style={{ fontSize: '13px', color: '#94a3b8' }}>Masukkan PIN rahasia 6 digit untuk mengubah skor.</p>
             <input
               type="password"
               value={pinInput}
@@ -672,42 +433,18 @@ export default function LitnumFestApp() {
               maxLength={6}
               autoFocus
             />
-            {errorMsg && (
-              <p
-                style={{
-                  color: '#ef4444',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  marginBottom: '16px',
-                }}
-              >
-                {errorMsg}
-              </p>
-            )}
+            {errorMsg && <p style={{ color: '#ef4444', fontSize: '13px', fontWeight: '600', marginBottom: '16px' }}>{errorMsg}</p>}
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                type="button"
-                onClick={() => setShowPinModal(false)}
-                className="btn btn-secondary"
-                style={{ flex: 1 }}
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ flex: 1 }}
-              >
-                Masuk
-              </button>
+              <button type="button" onClick={() => setShowPinModal(false)} className="btn btn-secondary" style={{ flex: 1 }}>Batal</button>
+              <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Masuk</button>
             </div>
           </form>
         </div>
       )}
 
       {/* DRAWER ADMIN OVERLAY */}
-      <div
-        className={`drawer-overlay ${isDrawerOpen ? 'open' : ''}`}
+      <div 
+        className={`drawer-overlay ${isDrawerOpen ? 'open' : ''}`} 
         onClick={() => setIsDrawerOpen(false)}
       ></div>
 
@@ -717,32 +454,15 @@ export default function LitnumFestApp() {
           <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <IconEdit size={22} /> Panel Pengelolaan
           </span>
-          <button
-            onClick={() => setIsDrawerOpen(false)}
-            className="btn-icon"
-            style={{ padding: '6px', color: 'white', border: 'none' }}
-          >
+          <button onClick={() => setIsDrawerOpen(false)} className="btn-icon" style={{ padding: '6px', color: 'white', border: 'none' }}>
             <IconX size={24} />
           </button>
         </div>
 
         <div className="drawer-content">
           {/* Action Buttons */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '12px',
-              marginBottom: '8px',
-            }}
-          >
-            <button
-              onClick={() => {
-                setIsDrawerOpen(false);
-                setTimeout(() => window.print(), 400);
-              }}
-              className="btn btn-primary"
-            >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '8px' }}>
+            <button onClick={() => { setIsDrawerOpen(false); setTimeout(() => window.print(), 400); }} className="btn btn-primary">
               <IconPrinter size={18} /> Cetak PDF
             </button>
             <button onClick={handleResetAll} className="btn btn-danger">
@@ -750,12 +470,10 @@ export default function LitnumFestApp() {
             </button>
           </div>
 
-          <div
-            style={{ height: '1px', background: '#1e293b', margin: '8px 0' }}
-          ></div>
+          <div style={{ height: '1px', background: '#1e293b', margin: '8px 0' }}></div>
 
           {/* Group Edit List */}
-          {sortedGroups.map((group) => (
+          {sortedGroups.map(group => (
             <div key={group.id} className="group-edit-card">
               {editingGroupId === group.id ? (
                 <div>
@@ -764,9 +482,7 @@ export default function LitnumFestApp() {
                     <input
                       type="text"
                       value={editForm.name}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, name: e.target.value })
-                      }
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                       className="input-field"
                     />
                   </div>
@@ -775,128 +491,70 @@ export default function LitnumFestApp() {
                       <span className="input-label">Smart Quiz (0-250)</span>
                       <input
                         type="number"
-                        value={editForm.sq ?? ''}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, sq: e.target.value })
-                        }
+                        value={editForm.sq ?? ""}
+                        onChange={(e) => setEditForm({ ...editForm, sq: e.target.value })}
                         className="input-field"
                         placeholder="-"
                       />
                     </div>
                     <div className="input-group">
-                      <span className="input-label">
-                        Mystery Mission (0-250)
-                      </span>
+                      <span className="input-label">Mystery Mission (0-250)</span>
                       <input
                         type="number"
-                        value={editForm.mm ?? ''}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, mm: e.target.value })
-                        }
+                        value={editForm.mm ?? ""}
+                        onChange={(e) => setEditForm({ ...editForm, mm: e.target.value })}
                         className="input-field"
                         placeholder="-"
                       />
                     </div>
                     <div className="input-group">
-                      <span className="input-label">
-                        Data Challenge (0-300)
-                      </span>
+                      <span className="input-label">Data Challenge (0-300)</span>
                       <input
                         type="number"
-                        value={editForm.dc ?? ''}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, dc: e.target.value })
-                        }
+                        value={editForm.dc ?? ""}
+                        onChange={(e) => setEditForm({ ...editForm, dc: e.target.value })}
                         className="input-field"
                         placeholder="-"
                       />
                     </div>
                     <div className="input-group">
-                      <span
-                        className="input-label"
-                        style={{ color: '#FFC928' }}
-                      >
-                        Jackpot (+/-)
-                      </span>
+                      <span className="input-label" style={{ color: '#FFC928' }}>Jackpot (+/-)</span>
                       <input
                         type="number"
-                        value={editForm.jp ?? ''}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, jp: e.target.value })
-                        }
+                        value={editForm.jp ?? ""}
+                        onChange={(e) => setEditForm({ ...editForm, jp: e.target.value })}
                         className="input-field"
                         placeholder="-"
                       />
                     </div>
                   </div>
                   <div className="input-group" style={{ marginTop: '12px' }}>
-                    <span className="input-label" style={{ color: '#d8b4fe' }}>
-                      Tie-Breaker (Skor Penentu Seri)
-                    </span>
+                    <span className="input-label" style={{ color: '#d8b4fe' }}>Tie-Breaker (Skor Penentu Seri)</span>
                     <input
                       type="number"
-                      value={editForm.tb ?? ''}
-                      onChange={(e) =>
-                        setEditForm({ ...editForm, tb: e.target.value })
-                      }
+                      value={editForm.tb ?? ""}
+                      onChange={(e) => setEditForm({ ...editForm, tb: e.target.value })}
                       className="input-field"
                       placeholder="-"
                     />
                   </div>
-                  <div
-                    style={{ display: 'flex', gap: '12px', marginTop: '16px' }}
-                  >
-                    <button
-                      onClick={() => setEditingGroupId(null)}
-                      className="btn btn-secondary"
-                      style={{ flex: 1 }}
-                    >
-                      Batal
-                    </button>
-                    <button
-                      onClick={handleSaveEdit}
-                      className="btn btn-success"
-                      style={{ flex: 1 }}
-                    >
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                    <button onClick={() => setEditingGroupId(null)} className="btn btn-secondary" style={{ flex: 1 }}>Batal</button>
+                    <button onClick={handleSaveEdit} className="btn btn-success" style={{ flex: 1 }}>
                       <IconSave size={18} /> Simpan
                     </button>
                   </div>
                 </div>
               ) : (
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ flex: 1 }}>
-                    <div
-                      style={{
-                        fontWeight: '700',
-                        fontSize: '15px',
-                        color: '#f1f5f9',
-                      }}
-                    >
-                      {group.name}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '12px',
-                        color: '#64748b',
-                        marginTop: '4px',
-                        fontFamily: 'monospace',
-                      }}
-                    >
-                      SQ: {group.sq ?? '-'} | MM: {group.mm ?? '-'} | DC:{' '}
-                      {group.dc ?? '-'} | JP: {group.jp ?? '-'}
+                    <div style={{ fontWeight: '700', fontSize: '15px', color: '#f1f5f9' }}>{group.name}</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', fontFamily: 'monospace' }}>
+                      SQ: {group.sq ?? '-'} | MM: {group.mm ?? '-'} | DC: {group.dc ?? '-'} | JP: {group.jp ?? '-'}
                     </div>
                   </div>
                   <button
-                    onClick={() => {
-                      setEditingGroupId(group.id);
-                      setEditForm({ ...group });
-                    }}
+                    onClick={() => { setEditingGroupId(group.id); setEditForm({ ...group }); }}
                     className="btn btn-primary"
                     style={{ padding: '8px 12px' }}
                   >
